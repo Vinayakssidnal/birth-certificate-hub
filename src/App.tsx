@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import RegistrarDashboard from "./pages/RegistrarDashboard";
 import VerifyCertificate from "./pages/VerifyCertificate";
+import BlockchainExplorer from "./pages/BlockchainExplorer";
+import ActivityLog from "./pages/ActivityLog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
             <Route path="/hospital" element={<HospitalDashboard />} />
             <Route path="/registrar" element={<RegistrarDashboard />} />
             <Route path="/verify" element={<VerifyCertificate />} />
+            <Route path="/explorer" element={<BlockchainExplorer />} />
+            <Route path="/activity" element={<ActivityLog />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>
