@@ -5,13 +5,19 @@ import { BrowserProvider, Contract } from "ethers";
 // =====================================================
 const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS_HERE";
 const CONTRACT_ABI = [
-  // createBirthRecord(string fatherName, string motherName, string babyName, string birthDate, string birthTime, string gender, string permanentAddress, string doctorName, string hospitalAddress)
   "function createBirthRecord(string,string,string,string,string,string,string,string,string) public returns (uint256)",
-  // approveCertificate(uint256 certificateId)
   "function approveCertificate(uint256) public",
-  // verifyCertificate(uint256 certificateId) view returns (tuple)
   "function verifyCertificate(uint256) public view returns (string,string,string,string,string,string,bool)",
 ];
+
+const IS_DEMO_MODE = CONTRACT_ADDRESS === "0xYOUR_CONTRACT_ADDRESS_HERE";
+
+function generateMockTxHash(): string {
+  return "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+}
+
+// In-memory demo storage
+const demoRecords: Map<number, BirthRecord & { approved: boolean }> = new Map();
 
 export interface WalletState {
   address: string | null;
@@ -69,19 +75,22 @@ function getContract() {
   return provider.getSigner().then((signer) => new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer));
 }
 
+let demoIdCounter = 1000;
+
 export async function createBirthRecord(record: BirthRecord): Promise<string> {
+  if (IS_DEMO_MODE) {
+    await new Promise((r) => setTimeout(r, 1500));
+    const id = demoIdCounter++;
+    demoRecords.set(id, { ...record, approved: false });
+    console.log(`[DEMO] Birth record created with ID: ${id}`);
+    return generateMockTxHash();
+  }
   try {
     const contract = await getContract();
     const tx = await contract.createBirthRecord(
-      record.fatherName,
-      record.motherName,
-      record.babyName,
-      record.birthDate,
-      record.birthTime,
-      record.gender,
-      record.permanentAddress,
-      record.doctorName,
-      record.hospitalAddress
+      record.fatherName, record.motherName, record.babyName,
+      record.birthDate, record.birthTime, record.gender,
+      record.permanentAddress, record.doctorName, record.hospitalAddress
     );
     const receipt = await tx.wait();
     return receipt.hash;
@@ -91,6 +100,12 @@ export async function createBirthRecord(record: BirthRecord): Promise<string> {
 }
 
 export async function approveCertificate(certificateId: number): Promise<string> {
+  if (IS_DEMO_MODE) {
+    await new Promise((r) => setTimeout(r, 1200));
+    const rec = demoRecords.get(certificateId);
+    if (rec) rec.approved = true;
+    return generateMockTxHash();
+  }
   try {
     const contract = await getContract();
     const tx = await contract.approveCertificate(certificateId);
@@ -102,14 +117,32 @@ export async function approveCertificate(certificateId: number): Promise<string>
 }
 
 export async function verifyCertificate(certificateId: number): Promise<CertificateData> {
+  if (IS_DEMO_MODE) {
+    await new Promise((r) => setTimeout(r, 1000));
+    const rec = demoRecords.get(certificateId);
+    if (rec) {
+      return {
+        fatherName: rec.fatherName, motherName: rec.motherName,
+        babyName: rec.babyName, birthDate: rec.birthDate,
+        hospital: rec.hospitalAddress,
+        status: rec.approved ? "Approved" : "Pending",
+        verified: rec.approved,
+      };
+    }
+    // Return sample data for any ID in demo mode
+    return {
+      fatherName: "John Doe", motherName: "Jane Doe",
+      babyName: "Baby Doe", birthDate: "2026-01-15",
+      hospital: "City General Hospital",
+      status: "Pending", verified: false,
+    };
+  }
   try {
     const contract = await getContract();
     const result = await contract.verifyCertificate(certificateId);
     return {
-      fatherName: result[0],
-      motherName: result[1],
-      babyName: result[2],
-      birthDate: result[3],
+      fatherName: result[0], motherName: result[1],
+      babyName: result[2], birthDate: result[3],
       hospital: result[4],
       status: result[6] ? "Approved" : "Pending",
       verified: result[6],
@@ -117,4 +150,8 @@ export async function verifyCertificate(certificateId: number): Promise<Certific
   } catch (error: any) {
     throw new Error(error.reason || error.message || "Verification failed");
   }
+}
+
+export function isDemoMode(): boolean {
+  return IS_DEMO_MODE;
 }
