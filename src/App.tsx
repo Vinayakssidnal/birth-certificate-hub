@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { StoreProvider } from "@/lib/store";
 import AppLayout from "@/components/AppLayout";
 import Home from "./pages/Home";
 import HospitalDashboard from "./pages/HospitalDashboard";
@@ -19,19 +20,21 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <AppLayout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/hospital" element={<HospitalDashboard />} />
-            <Route path="/registrar" element={<RegistrarDashboard />} />
-            <Route path="/verify" element={<VerifyCertificate />} />
-            <Route path="/explorer" element={<BlockchainExplorer />} />
-            <Route path="/activity" element={<ActivityLog />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AppLayout>
-      </BrowserRouter>
+      <StoreProvider>
+        <BrowserRouter>
+          <AppLayout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/hospital" element={<HospitalDashboard />} />
+              <Route path="/registrar" element={<RegistrarDashboard />} />
+              <Route path="/verify" element={<VerifyCertificate />} />
+              <Route path="/explorer" element={<BlockchainExplorer />} />
+              <Route path="/activity" element={<ActivityLog />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppLayout>
+        </BrowserRouter>
+      </StoreProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
