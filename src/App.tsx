@@ -31,6 +31,7 @@ const App = () => (
               <Route path="/verify" element={<VerifyCertificate />} />
               <Route path="/explorer" element={<BlockchainExplorer />} />
               <Route path="/activity" element={<ActivityLog />} />
+              <Route path="/analytics" element={<Analytics />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>
