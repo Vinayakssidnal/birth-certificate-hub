@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   Blocks, Search, Hash, Clock, Box, Activity,
   Fuel, CheckCircle2, FileText, UserCheck, ShieldCheck, Copy,
-  Layers, ArrowRight, Cpu, AlertCircle
+  Layers, ArrowRight, Cpu, AlertCircle, Link, ArrowDown
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -269,36 +269,66 @@ export default function BlockchainExplorer() {
                 <p className="text-sm text-muted-foreground font-body">No blocks yet.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border">
-                {blocks.map((block) => (
-                  <div key={block.number} className="px-6 py-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                        <Box className="h-5 w-5 text-primary" />
+              <div className="space-y-0">
+                {blocks.map((block, idx) => (
+                  <div key={block.number}>
+                    {/* Chain connector arrow between blocks */}
+                    {idx > 0 && (
+                      <div className="flex flex-col items-center py-2">
+                        <div className="w-px h-4 bg-primary/30" />
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                          <Link className="h-3 w-3 text-primary" />
+                          <span className="text-[10px] font-mono text-primary font-medium">
+                            {block.currentHash.slice(0, 10)}...{block.currentHash.slice(-6)}
+                          </span>
+                          <ArrowDown className="h-3 w-3 text-primary" />
+                        </div>
+                        <div className="w-px h-4 bg-primary/30" />
                       </div>
-                      <div className="flex-1 min-w-0">
+                    )}
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="rounded-xl border border-border bg-card mx-4 my-1 p-4 hover:border-primary/30 transition-colors shadow-sm"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                          <Box className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-card-foreground font-mono">#{block.number}</span>
+                            {idx === 0 && (
+                              <span className="text-[10px] font-body bg-primary/10 text-primary rounded-full px-2 py-0.5 font-medium">Latest</span>
+                            )}
+                            {idx === blocks.length - 1 && (
+                              <span className="text-[10px] font-body bg-accent/10 text-accent rounded-full px-2 py-0.5 font-medium">Genesis</span>
+                            )}
+                            <span className="text-xs text-muted-foreground font-body">{block.timestamp}</span>
+                          </div>
+                          <div className="flex items-center gap-4 mt-1">
+                            <span className="text-xs text-muted-foreground font-body">{block.txCount} txn{block.txCount > 1 ? "s" : ""}</span>
+                            <span className="text-xs text-muted-foreground font-body">Gas: {block.gasUsed}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 ml-14 space-y-1.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-card-foreground font-mono">#{block.number}</span>
-                          <span className="text-xs text-muted-foreground font-body">{block.timestamp}</span>
+                          <Hash className="h-3 w-3 text-primary shrink-0" />
+                          <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Current Hash:</span>
+                          <span className="text-xs font-mono text-primary break-all">{block.currentHash}</span>
                         </div>
-                        <div className="flex items-center gap-4 mt-1">
-                          <span className="text-xs text-muted-foreground font-body">{block.txCount} txn{block.txCount > 1 ? "s" : ""}</span>
-                          <span className="text-xs text-muted-foreground font-body">Gas: {block.gasUsed}</span>
+                        <div className="flex items-center gap-2">
+                          <Hash className="h-3 w-3 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Previous Hash:</span>
+                          <span className={`text-xs font-mono break-all ${block.previousHash === "0x" + "0".repeat(64) ? "text-accent" : "text-muted-foreground"}`}>
+                            {block.previousHash === "0x" + "0".repeat(64) ? "0x0000...0000 (Genesis)" : block.previousHash}
+                          </span>
                         </div>
                       </div>
-                    </div>
-                    <div className="mt-3 ml-14 space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <Hash className="h-3 w-3 text-muted-foreground shrink-0" />
-                        <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Current Hash:</span>
-                        <span className="text-xs font-mono text-primary break-all">{block.currentHash}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Hash className="h-3 w-3 text-muted-foreground shrink-0" />
-                        <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Previous Hash:</span>
-                        <span className="text-xs font-mono text-muted-foreground break-all">{block.previousHash}</span>
-                      </div>
-                    </div>
+                    </motion.div>
                   </div>
                 ))}
               </div>
