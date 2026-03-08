@@ -72,29 +72,29 @@ const seedRecords: StoredRecord[] = [
     id: 1001, status: "Approved", txHash: mockTxHash(1001), createdAt: new Date(now - 86400000 * 3).toISOString(),
     approvedAt: new Date(now - 86400000 * 2).toISOString(), approveTxHash: mockTxHash(2001),
     creatorAddress: "0xa1b2...c3d4", approverAddress: "0xe5f6...7890", block: 4821100,
-    record: { babyName: "Aarav Sharma", fatherName: "Rajesh Sharma", motherName: "Priya Sharma", dateOfBirth: "2025-12-10", gender: "Male", hospitalAddress: "City General Hospital", weight: "3.2", birthTime: "08:30" },
+    record: { babyName: "Aarav Sharma", fatherName: "Rajesh Sharma", motherName: "Priya Sharma", birthDate: "2025-12-10", gender: "Male", hospitalAddress: "City General Hospital", birthTime: "08:30", permanentAddress: "12 MG Road, Delhi", doctorName: "Dr. Mehta" },
   },
   {
     id: 1002, status: "Approved", txHash: mockTxHash(1002), createdAt: new Date(now - 86400000 * 2).toISOString(),
     approvedAt: new Date(now - 86400000 * 1).toISOString(), approveTxHash: mockTxHash(2002),
     creatorAddress: "0x1234...5678", approverAddress: "0x9abc...def0", block: 4821101,
-    record: { babyName: "Zara Khan", fatherName: "Imran Khan", motherName: "Sana Khan", dateOfBirth: "2025-12-15", gender: "Female", hospitalAddress: "Apollo Hospital", weight: "2.9", birthTime: "14:15" },
+    record: { babyName: "Zara Khan", fatherName: "Imran Khan", motherName: "Sana Khan", birthDate: "2025-12-15", gender: "Female", hospitalAddress: "Apollo Hospital", birthTime: "14:15", permanentAddress: "45 Park Street, Mumbai", doctorName: "Dr. Siddiqui" },
   },
   {
     id: 1003, status: "Approved", txHash: mockTxHash(1003), createdAt: new Date(now - 86400000 * 1.5).toISOString(),
     approvedAt: new Date(now - 86400000 * 0.5).toISOString(), approveTxHash: mockTxHash(2003),
     creatorAddress: "0xabcd...ef01", approverAddress: "0x2345...6789", block: 4821102,
-    record: { babyName: "Riya Patel", fatherName: "Amit Patel", motherName: "Neha Patel", dateOfBirth: "2026-01-05", gender: "Female", hospitalAddress: "Max Healthcare", weight: "3.5", birthTime: "22:00" },
+    record: { babyName: "Riya Patel", fatherName: "Amit Patel", motherName: "Neha Patel", birthDate: "2026-01-05", gender: "Female", hospitalAddress: "Max Healthcare", birthTime: "22:00", permanentAddress: "78 Lake Road, Ahmedabad", doctorName: "Dr. Desai" },
   },
   {
     id: 1004, status: "Pending", txHash: mockTxHash(1004), createdAt: new Date(now - 86400000 * 0.8).toISOString(),
     creatorAddress: "0xfed0...1234", block: 4821103,
-    record: { babyName: "Arjun Reddy", fatherName: "Vikram Reddy", motherName: "Lakshmi Reddy", dateOfBirth: "2026-02-20", gender: "Male", hospitalAddress: "AIIMS Delhi", weight: "3.1", birthTime: "06:45" },
+    record: { babyName: "Arjun Reddy", fatherName: "Vikram Reddy", motherName: "Lakshmi Reddy", birthDate: "2026-02-20", gender: "Male", hospitalAddress: "AIIMS Delhi", birthTime: "06:45", permanentAddress: "33 Jubilee Hills, Hyderabad", doctorName: "Dr. Rao" },
   },
   {
     id: 1005, status: "Pending", txHash: mockTxHash(1005), createdAt: new Date(now - 3600000 * 5).toISOString(),
     creatorAddress: "0x7890...abcd", block: 4821104,
-    record: { babyName: "Meera Nair", fatherName: "Suresh Nair", motherName: "Anjali Nair", dateOfBirth: "2026-03-01", gender: "Female", hospitalAddress: "Fortis Hospital", weight: "2.8", birthTime: "11:20" },
+    record: { babyName: "Meera Nair", fatherName: "Suresh Nair", motherName: "Anjali Nair", birthDate: "2026-03-01", gender: "Female", hospitalAddress: "Fortis Hospital", birthTime: "11:20", permanentAddress: "9 Marine Drive, Kochi", doctorName: "Dr. Pillai" },
   },
 ];
 
