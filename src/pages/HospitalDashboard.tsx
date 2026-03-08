@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import WalletButton from "@/components/WalletButton";
 import { createBirthRecord, type BirthRecord } from "@/lib/blockchain";
+import { useStore } from "@/lib/store";
 
 const initialForm: BirthRecord = {
   fatherName: "",
@@ -35,15 +36,17 @@ export default function HospitalDashboard() {
   const [form, setForm] = useState<BirthRecord>(initialForm);
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [certId, setCertId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { addRecord } = useStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setTxHash(null);
+    setCertId(null);
 
-    // Validation
     const missing = fields.filter((f) => !form[f.key].trim());
     if (missing.length > 0) {
       setError(`Please fill in: ${missing.map((f) => f.label).join(", ")}`);
@@ -53,7 +56,9 @@ export default function HospitalDashboard() {
 
     try {
       const hash = await createBirthRecord(form);
+      const id = addRecord(form, hash);
       setTxHash(hash);
+      setCertId(id);
       setForm(initialForm);
     } catch (e: any) {
       setError(e.message);
@@ -117,6 +122,9 @@ export default function HospitalDashboard() {
               <h3 className="font-bold text-success font-body">Record Created Successfully!</h3>
             </div>
             <p className="text-xs text-muted-foreground font-body break-all">
+              Certificate ID: <span className="font-mono text-foreground font-bold">#{certId}</span>
+            </p>
+            <p className="text-xs text-muted-foreground font-body break-all mt-1">
               Transaction Hash: <span className="font-mono text-foreground">{txHash}</span>
             </p>
           </motion.div>

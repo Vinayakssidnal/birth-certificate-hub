@@ -5,6 +5,7 @@ import {
   Lock, Globe, Database, Cpu, Network, Hash, Box, Activity,
   Clock, CheckCircle2, AlertCircle
 } from "lucide-react";
+import { useStore } from "@/lib/store";
 
 const cards = [
   {
@@ -80,14 +81,6 @@ const blockchainFeatures = [
   },
 ];
 
-const recentActivity = [
-  { type: "create", message: "Birth record created for Baby #1047", time: "2 min ago", icon: FileText },
-  { type: "approve", message: "Certificate #1045 approved by Registrar", time: "8 min ago", icon: CheckCircle2 },
-  { type: "verify", message: "Certificate #1039 verified successfully", time: "15 min ago", icon: ShieldCheck },
-  { type: "create", message: "Birth record created for Baby #1046", time: "22 min ago", icon: FileText },
-  { type: "approve", message: "Certificate #1042 approved by Registrar", time: "35 min ago", icon: CheckCircle2 },
-];
-
 const networkInfo = {
   network: "Ethereum (Sepolia Testnet)",
   chainId: "11155111",
@@ -98,6 +91,23 @@ const networkInfo = {
 };
 
 export default function HomePage() {
+  const { records, activities } = useStore();
+
+  const totalCreated = activities.filter((a) => a.type === "create").length;
+  const totalApproved = activities.filter((a) => a.type === "approve").length;
+  const totalVerified = activities.filter((a) => a.type === "verify").length;
+
+  const recentActivity = activities.slice(0, 5);
+
+  const activityIcon = (type: string) => {
+    switch (type) {
+      case "create": return FileText;
+      case "approve": return CheckCircle2;
+      case "verify": return ShieldCheck;
+      default: return FileText;
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-16">
       {/* Hero */}
@@ -153,10 +163,10 @@ export default function HomePage() {
         className="grid grid-cols-2 md:grid-cols-4 gap-6 rounded-xl gradient-hero p-8 text-center"
       >
         {[
-          { label: "Certificates Issued", value: "12,847", icon: FileText },
-          { label: "Verified Records", value: "11,293", icon: ShieldCheck },
-          { label: "Active Hospitals", value: "156", icon: Building2 },
-          { label: "Blocks Processed", value: "48,291", icon: Box },
+          { label: "Certificates Issued", value: totalCreated.toString(), icon: FileText },
+          { label: "Approved Records", value: totalApproved.toString(), icon: ShieldCheck },
+          { label: "Verifications", value: totalVerified.toString(), icon: CheckCircle2 },
+          { label: "Total Transactions", value: activities.length.toString(), icon: Box },
         ].map((stat) => (
           <div key={stat.label} className="flex flex-col items-center">
             <stat.icon className="h-5 w-5 text-primary-foreground/60 mb-2" />
@@ -167,11 +177,7 @@ export default function HomePage() {
       </motion.div>
 
       {/* How It Works */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-foreground mb-2">How It Works</h2>
           <p className="text-muted-foreground font-body">End-to-end blockchain-secured certificate lifecycle</p>
@@ -197,11 +203,7 @@ export default function HomePage() {
       </motion.div>
 
       {/* Blockchain Features */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-foreground mb-2">Why Blockchain?</h2>
           <p className="text-muted-foreground font-body">Key advantages of decentralized certificate management</p>
@@ -271,25 +273,35 @@ export default function HomePage() {
             <Activity className="h-5 w-5 text-primary" />
             <h3 className="font-bold text-card-foreground font-body">Recent Activity</h3>
           </div>
-          <div className="divide-y divide-border">
-            {recentActivity.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 px-6 py-3">
-                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                  item.type === "create" ? "bg-primary/10" :
-                  item.type === "approve" ? "bg-success/10" : "bg-accent/10"
-                }`}>
-                  <item.icon className={`h-4 w-4 ${
-                    item.type === "create" ? "text-primary" :
-                    item.type === "approve" ? "text-success" : "text-accent"
-                  }`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-card-foreground font-body truncate">{item.message}</p>
-                  <p className="text-xs text-muted-foreground font-body">{item.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          {recentActivity.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <AlertCircle className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground font-body">No activity yet. Start by creating a birth record.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {recentActivity.map((item) => {
+                const Icon = activityIcon(item.type);
+                return (
+                  <div key={item.id} className="flex items-center gap-3 px-6 py-3">
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                      item.type === "create" ? "bg-primary/10" :
+                      item.type === "approve" ? "bg-success/10" : "bg-accent/10"
+                    }`}>
+                      <Icon className={`h-4 w-4 ${
+                        item.type === "create" ? "text-primary" :
+                        item.type === "approve" ? "text-success" : "text-accent"
+                      }`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-card-foreground font-body truncate">{item.description}</p>
+                      <p className="text-xs text-muted-foreground font-body">{item.time}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </motion.div>
       </div>
 
@@ -403,7 +415,7 @@ export default function HomePage() {
                 <p className="text-[10px] text-muted-foreground font-body">{node.sublabel}</p>
               </div>
               {i < arr.length - 1 && (
-                <ArrowRight className="h-5 w-5 text-muted-foreground hidden md:block shrink-0" />
+                <ArrowRight className="h-5 w-5 text-muted-foreground hidden md:block" />
               )}
             </div>
           ))}

@@ -1,30 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { UserCheck, CheckCircle2, Loader2, Clock } from "lucide-react";
+import { UserCheck, CheckCircle2, Loader2, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import WalletButton from "@/components/WalletButton";
 import { approveCertificate } from "@/lib/blockchain";
-
-interface CertEntry {
-  id: number;
-  babyName: string;
-  status: "Pending" | "Approved";
-}
+import { useStore } from "@/lib/store";
 
 export default function RegistrarDashboard() {
   const [certId, setCertId] = useState("");
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Demo data
-  const [certificates, setCertificates] = useState<CertEntry[]>([
-    { id: 1001, babyName: "Aarav Sharma", status: "Pending" },
-    { id: 1002, babyName: "Priya Patel", status: "Approved" },
-    { id: 1003, babyName: "Rohan Kumar", status: "Pending" },
-  ]);
+  const { records, approveRecord } = useStore();
 
   const handleApprove = async () => {
     if (!certId.trim()) {
@@ -36,10 +25,8 @@ export default function RegistrarDashboard() {
     setTxHash(null);
     try {
       const hash = await approveCertificate(Number(certId));
+      approveRecord(Number(certId), hash);
       setTxHash(hash);
-      setCertificates((prev) =>
-        prev.map((c) => (c.id === Number(certId) ? { ...c, status: "Approved" } : c))
-      );
       setCertId("");
     } catch (e: any) {
       setError(e.message);
@@ -118,42 +105,47 @@ export default function RegistrarDashboard() {
           <div className="px-6 py-4 border-b border-border">
             <h3 className="font-bold text-card-foreground font-body">Certificate Records</h3>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">
-                    Certificate ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">
-                    Baby Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {certificates.map((cert) => (
-                  <tr key={cert.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4 text-sm font-mono text-card-foreground">#{cert.id}</td>
-                    <td className="px-6 py-4 text-sm font-body text-card-foreground">{cert.babyName}</td>
-                    <td className="px-6 py-4">
-                      {cert.status === "Approved" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success font-body">
-                          <CheckCircle2 className="h-3 w-3" /> Approved
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-3 py-1 text-xs font-medium text-warning font-body">
-                          <Clock className="h-3 w-3" /> Pending
-                        </span>
-                      )}
-                    </td>
+          {records.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground font-body">No records yet. Create a birth record from the Hospital Dashboard first.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">Certificate ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">Baby Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">Hospital</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">Birth Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground font-body uppercase tracking-wider">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {records.map((cert) => (
+                    <tr key={cert.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                      <td className="px-6 py-4 text-sm font-mono text-card-foreground">#{cert.id}</td>
+                      <td className="px-6 py-4 text-sm font-body text-card-foreground">{cert.record.babyName}</td>
+                      <td className="px-6 py-4 text-sm font-body text-muted-foreground">{cert.record.hospitalAddress}</td>
+                      <td className="px-6 py-4 text-sm font-body text-muted-foreground">{cert.record.birthDate}</td>
+                      <td className="px-6 py-4">
+                        {cert.status === "Approved" ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success font-body">
+                            <CheckCircle2 className="h-3 w-3" /> Approved
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-3 py-1 text-xs font-medium text-warning font-body">
+                            <Clock className="h-3 w-3" /> Pending
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>
