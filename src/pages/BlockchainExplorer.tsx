@@ -262,18 +262,32 @@ export default function BlockchainExplorer() {
             ) : (
               <div className="divide-y divide-border">
                 {blocks.map((block) => (
-                  <div key={block.number} className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                      <Box className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-card-foreground font-mono">#{block.number}</span>
-                        <span className="text-xs text-muted-foreground font-body">{block.timestamp}</span>
+                  <div key={block.number} className="px-6 py-4 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                        <Box className="h-5 w-5 text-primary" />
                       </div>
-                      <div className="flex items-center gap-4 mt-1">
-                        <span className="text-xs text-muted-foreground font-body">{block.txCount} txn{block.txCount > 1 ? "s" : ""}</span>
-                        <span className="text-xs text-muted-foreground font-body">Gas: {block.gasUsed}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-card-foreground font-mono">#{block.number}</span>
+                          <span className="text-xs text-muted-foreground font-body">{block.timestamp}</span>
+                        </div>
+                        <div className="flex items-center gap-4 mt-1">
+                          <span className="text-xs text-muted-foreground font-body">{block.txCount} txn{block.txCount > 1 ? "s" : ""}</span>
+                          <span className="text-xs text-muted-foreground font-body">Gas: {block.gasUsed}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 ml-14 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Hash className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Current Hash:</span>
+                        <span className="text-xs font-mono text-primary break-all">{block.currentHash}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Hash className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Previous Hash:</span>
+                        <span className="text-xs font-mono text-muted-foreground break-all">{block.previousHash}</span>
                       </div>
                     </div>
                   </div>
