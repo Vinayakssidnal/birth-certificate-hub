@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   Blocks, Search, Hash, Clock, Box, Activity,
   Fuel, CheckCircle2, FileText, UserCheck, ShieldCheck, Copy,
-  Layers, ArrowRight, Cpu, AlertCircle
+  Layers, ArrowRight, Cpu, AlertCircle, Link, ArrowDown
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
