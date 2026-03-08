@@ -39,15 +39,12 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
-let nextId = 1016;
-let nextBlock = 4821120;
-let nextActivityId = 31;
-
+// ─── Helpers ───
 function generateAddress(): string {
   const chars = "0123456789abcdef";
-  const start = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * 16)]).join("");
-  const end = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * 16)]).join("");
-  return `0x${start}...${end}`;
+  const s = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * 16)]).join("");
+  const e = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * 16)]).join("");
+  return `0x${s}...${e}`;
 }
 
 function timeAgo(ts: number): string {
@@ -58,142 +55,229 @@ function timeAgo(ts: number): string {
   return `${Math.floor(diff / 86400)} days ago`;
 }
 
-function mockTxHash(seed: number): string {
-  const chars = "0123456789abcdef";
+function seedTxHash(seed: number): string {
+  const c = "0123456789abcdef";
   let h = "0x";
-  for (let i = 0; i < 64; i++) h += chars[(seed * 7 + i * 13) % 16];
+  for (let i = 0; i < 64; i++) h += c[(seed * 7 + i * 13 + 3) % 16];
   return h;
 }
 
-const now = Date.now();
+function seedAddr(seed: number): string {
+  const c = "0123456789abcdef";
+  const s = Array.from({ length: 4 }, (_, i) => c[(seed * 3 + i * 7) % 16]).join("");
+  const e = Array.from({ length: 4 }, (_, i) => c[(seed * 11 + i * 5) % 16]).join("");
+  return `0x${s}...${e}`;
+}
 
-const seedRecords: StoredRecord[] = [
-  {
-    id: 1001, status: "Approved", txHash: mockTxHash(1001), createdAt: new Date(now - 86400000 * 30).toISOString(),
-    approvedAt: new Date(now - 86400000 * 29).toISOString(), approveTxHash: mockTxHash(2001),
-    creatorAddress: "0xa1b2...c3d4", approverAddress: "0xe5f6...7890", block: 4821100,
-    record: { babyName: "Aarav Sharma", fatherName: "Rajesh Kumar Sharma", motherName: "Priya Devi Sharma", birthDate: "2025-11-15", gender: "Male", hospitalAddress: "AIIMS New Delhi, Ansari Nagar East, New Delhi – 110029", birthTime: "08:30", permanentAddress: "H.No 45, Sector 12, Dwarka, New Delhi – 110075", doctorName: "Dr. Anand Mehta (Reg. No. DMC/2015/4521)" },
-  },
-  {
-    id: 1002, status: "Approved", txHash: mockTxHash(1002), createdAt: new Date(now - 86400000 * 28).toISOString(),
-    approvedAt: new Date(now - 86400000 * 27).toISOString(), approveTxHash: mockTxHash(2002),
-    creatorAddress: "0x1234...5678", approverAddress: "0x9abc...def0", block: 4821101,
-    record: { babyName: "Zara Fatima Khan", fatherName: "Imran Ahmed Khan", motherName: "Sana Begum Khan", birthDate: "2025-11-20", gender: "Female", hospitalAddress: "Safdarjung Hospital, Ring Road, New Delhi – 110029", birthTime: "14:15", permanentAddress: "Flat 302, Block C, Jamia Nagar, Okhla, New Delhi – 110025", doctorName: "Dr. Farah Siddiqui (Reg. No. DMC/2018/7834)" },
-  },
-  {
-    id: 1003, status: "Approved", txHash: mockTxHash(1003), createdAt: new Date(now - 86400000 * 25).toISOString(),
-    approvedAt: new Date(now - 86400000 * 24).toISOString(), approveTxHash: mockTxHash(2003),
-    creatorAddress: "0xabcd...ef01", approverAddress: "0x2345...6789", block: 4821102,
-    record: { babyName: "Riya Patel", fatherName: "Amit Ramesh Patel", motherName: "Neha Jayesh Patel", birthDate: "2025-12-01", gender: "Female", hospitalAddress: "Civil Hospital Ahmedabad, Asarwa, Ahmedabad – 380016", birthTime: "22:00", permanentAddress: "B-78, Vastrapur Society, S.G. Highway, Ahmedabad – 380015", doctorName: "Dr. Kirti Desai (Reg. No. GMC/2012/3456)" },
-  },
-  {
-    id: 1004, status: "Approved", txHash: mockTxHash(1004), createdAt: new Date(now - 86400000 * 22).toISOString(),
-    approvedAt: new Date(now - 86400000 * 21).toISOString(), approveTxHash: mockTxHash(2004),
-    creatorAddress: "0xfed0...1234", approverAddress: "0xaaaa...bbbb", block: 4821103,
-    record: { babyName: "Arjun Venkatesh Reddy", fatherName: "Vikram Suresh Reddy", motherName: "Lakshmi Devi Reddy", birthDate: "2025-12-10", gender: "Male", hospitalAddress: "Osmania General Hospital, Afzal Gunj, Hyderabad – 500012", birthTime: "06:45", permanentAddress: "Plot 33, Jubilee Hills, Road No. 10, Hyderabad – 500033", doctorName: "Dr. P. Srinivas Rao (Reg. No. TSMC/2010/8901)" },
-  },
-  {
-    id: 1005, status: "Approved", txHash: mockTxHash(1005), createdAt: new Date(now - 86400000 * 18).toISOString(),
-    approvedAt: new Date(now - 86400000 * 17).toISOString(), approveTxHash: mockTxHash(2005),
-    creatorAddress: "0x7890...abcd", approverAddress: "0xcccc...dddd", block: 4821104,
-    record: { babyName: "Meera Suresh Nair", fatherName: "Suresh Gopalan Nair", motherName: "Anjali Mohan Nair", birthDate: "2025-12-18", gender: "Female", hospitalAddress: "Govt. Medical College Hospital, Thiruvananthapuram – 695011", birthTime: "11:20", permanentAddress: "TC 9/1842, Vazhuthacaud, Thiruvananthapuram – 695014", doctorName: "Dr. Deepa Pillai (Reg. No. TCMC/2016/2234)" },
-  },
-  {
-    id: 1006, status: "Approved", txHash: mockTxHash(1006), createdAt: new Date(now - 86400000 * 15).toISOString(),
-    approvedAt: new Date(now - 86400000 * 14).toISOString(), approveTxHash: mockTxHash(2006),
-    creatorAddress: "0x3456...7890", approverAddress: "0xeeff...1122", block: 4821105,
-    record: { babyName: "Kabir Singh Gill", fatherName: "Harpreet Singh Gill", motherName: "Manpreet Kaur Gill", birthDate: "2026-01-02", gender: "Male", hospitalAddress: "PGIMER Chandigarh, Sector 12, Chandigarh – 160012", birthTime: "03:10", permanentAddress: "House No. 234, Phase 7, Mohali, Punjab – 160062", doctorName: "Dr. Gurpreet Kaur (Reg. No. PMC/2014/5567)" },
-  },
-  {
-    id: 1007, status: "Approved", txHash: mockTxHash(1007), createdAt: new Date(now - 86400000 * 12).toISOString(),
-    approvedAt: new Date(now - 86400000 * 11).toISOString(), approveTxHash: mockTxHash(2007),
-    creatorAddress: "0x5678...9012", approverAddress: "0x3344...5566", block: 4821106,
-    record: { babyName: "Ananya Das", fatherName: "Subhash Chandra Das", motherName: "Rina Das", birthDate: "2026-01-10", gender: "Female", hospitalAddress: "SSKM Hospital, 244 AJC Bose Road, Kolkata – 700020", birthTime: "17:45", permanentAddress: "24/1 Gariahat Road, Ballygunge, Kolkata – 700019", doctorName: "Dr. Soumya Banerjee (Reg. No. WBMC/2013/6789)" },
-  },
-  {
-    id: 1008, status: "Approved", txHash: mockTxHash(1008), createdAt: new Date(now - 86400000 * 10).toISOString(),
-    approvedAt: new Date(now - 86400000 * 9).toISOString(), approveTxHash: mockTxHash(2008),
-    creatorAddress: "0x9012...3456", approverAddress: "0x7788...9900", block: 4821107,
-    record: { babyName: "Vivaan Joshi", fatherName: "Rakesh Mohan Joshi", motherName: "Sunita Devi Joshi", birthDate: "2026-01-18", gender: "Male", hospitalAddress: "SMS Hospital, Jaipur, Rajasthan – 302004", birthTime: "09:55", permanentAddress: "C-56, Malviya Nagar, Jaipur – 302017", doctorName: "Dr. Ramesh Agarwal (Reg. No. RMC/2011/4412)" },
-  },
-  {
-    id: 1009, status: "Approved", txHash: mockTxHash(1009), createdAt: new Date(now - 86400000 * 7).toISOString(),
-    approvedAt: new Date(now - 86400000 * 6).toISOString(), approveTxHash: mockTxHash(2009),
-    creatorAddress: "0xbcde...f012", approverAddress: "0xaabb...ccdd", block: 4821108,
-    record: { babyName: "Ishita Rao", fatherName: "Nagaraj Rao", motherName: "Savitri Rao", birthDate: "2026-01-25", gender: "Female", hospitalAddress: "Victoria Hospital, Fort, Bangalore – 560002", birthTime: "13:30", permanentAddress: "No. 89, 4th Cross, Jayanagar, Bangalore – 560011", doctorName: "Dr. Kavitha Murthy (Reg. No. KMC/2015/3321)" },
-  },
-  {
-    id: 1010, status: "Approved", txHash: mockTxHash(1010), createdAt: new Date(now - 86400000 * 5).toISOString(),
-    approvedAt: new Date(now - 86400000 * 4).toISOString(), approveTxHash: mockTxHash(2010),
-    creatorAddress: "0xdef0...1234", approverAddress: "0xddee...ff00", block: 4821109,
-    record: { babyName: "Aditi Verma", fatherName: "Manoj Kumar Verma", motherName: "Kavita Verma", birthDate: "2026-02-03", gender: "Female", hospitalAddress: "King George's Medical University, Lucknow – 226003", birthTime: "20:10", permanentAddress: "112/A, Gomti Nagar, Lucknow – 226010", doctorName: "Dr. Alok Srivastava (Reg. No. UPMC/2009/7890)" },
-  },
-  {
-    id: 1011, status: "Pending", txHash: mockTxHash(1011), createdAt: new Date(now - 86400000 * 3).toISOString(),
-    creatorAddress: "0x2468...ace0", block: 4821110,
-    record: { babyName: "Rohan Malhotra", fatherName: "Sanjay Malhotra", motherName: "Deepika Malhotra", birthDate: "2026-02-15", gender: "Male", hospitalAddress: "Sir Ganga Ram Hospital, Rajinder Nagar, New Delhi – 110060", birthTime: "07:00", permanentAddress: "D-12, Greater Kailash Part II, New Delhi – 110048", doctorName: "Dr. Vinod Kapoor (Reg. No. DMC/2017/9012)" },
-  },
-  {
-    id: 1012, status: "Pending", txHash: mockTxHash(1012), createdAt: new Date(now - 86400000 * 2).toISOString(),
-    creatorAddress: "0x1357...bdf1", block: 4821111,
-    record: { babyName: "Saanvi Iyer", fatherName: "Ramakrishnan Iyer", motherName: "Padma Iyer", birthDate: "2026-02-20", gender: "Female", hospitalAddress: "Govt. General Hospital, Chennai – 600003", birthTime: "16:25", permanentAddress: "Old No. 18, New No. 36, T. Nagar, Chennai – 600017", doctorName: "Dr. S. Venkatesh (Reg. No. TNMC/2014/5543)" },
-  },
-  {
-    id: 1013, status: "Pending", txHash: mockTxHash(1013), createdAt: new Date(now - 86400000 * 1).toISOString(),
-    creatorAddress: "0x8642...0ace", block: 4821112,
-    record: { babyName: "Dev Rajput", fatherName: "Bharat Singh Rajput", motherName: "Geeta Rajput", birthDate: "2026-02-28", gender: "Male", hospitalAddress: "MY Hospital, Indore, Madhya Pradesh – 452001", birthTime: "12:00", permanentAddress: "56, Vijay Nagar, Indore – 452010", doctorName: "Dr. Prashant Dubey (Reg. No. MPMC/2016/6678)" },
-  },
-  {
-    id: 1014, status: "Pending", txHash: mockTxHash(1014), createdAt: new Date(now - 3600000 * 8).toISOString(),
-    creatorAddress: "0xface...b00k", block: 4821113,
-    record: { babyName: "Anika Bose", fatherName: "Debashish Bose", motherName: "Moumita Bose", birthDate: "2026-03-05", gender: "Female", hospitalAddress: "NRS Medical College, 138 AJC Bose Road, Kolkata – 700014", birthTime: "01:45", permanentAddress: "P-42, Lake Gardens, Kolkata – 700045", doctorName: "Dr. Arijit Sen (Reg. No. WBMC/2018/8890)" },
-  },
-  {
-    id: 1015, status: "Pending", txHash: mockTxHash(1015), createdAt: new Date(now - 3600000 * 2).toISOString(),
-    creatorAddress: "0xdead...beef", block: 4821114,
-    record: { babyName: "Yash Chauhan", fatherName: "Dinesh Chauhan", motherName: "Meenakshi Chauhan", birthDate: "2026-03-07", gender: "Male", hospitalAddress: "BJ Medical College, Civil Hospital Campus, Ahmedabad – 380016", birthTime: "10:30", permanentAddress: "A-9, Paldi, Ahmedabad – 380007", doctorName: "Dr. Hiren Shah (Reg. No. GMC/2013/4490)" },
-  },
+function pick<T>(arr: T[], seed: number): T {
+  return arr[Math.abs(seed) % arr.length];
+}
+
+// ─── Data Pools ───
+const maleFirst = ["Aarav","Vivaan","Aditya","Vihaan","Arjun","Sai","Reyansh","Ayaan","Krishna","Ishaan","Shaurya","Atharva","Advait","Rudra","Kabir","Dhruv","Ritvik","Aarush","Kian","Darsh","Arnav","Pranav","Rohan","Dev","Yash","Harsh","Laksh","Manav","Nikhil","Omkar","Parth","Rishi","Sahil","Tanish","Ved","Aakash","Bharat","Chirag","Deepak","Gaurav","Hemant","Jayesh","Kartik","Mihir","Nakul","Pranit","Rahul","Siddharth","Tushar","Varun"];
+const femaleFirst = ["Saanvi","Aanya","Aadhya","Aaradhya","Ananya","Pari","Anika","Navya","Angel","Diya","Myra","Sara","Iraa","Ahana","Kiara","Riya","Kavya","Meera","Ishita","Aditi","Nisha","Pooja","Shreya","Tanya","Isha","Jhanvi","Kriti","Mahi","Neha","Pallavi","Rhea","Simran","Tanvi","Urvi","Vidhi","Aisha","Bhavya","Charvi","Devika","Eesha","Fatima","Gauri","Hina","Ira","Janvi","Khushi","Lavanya","Mira","Nandini","Prisha"];
+const lastNames = ["Sharma","Patel","Kumar","Singh","Reddy","Nair","Joshi","Gupta","Verma","Das","Iyer","Bose","Chauhan","Malhotra","Rao","Gill","Khan","Pillai","Desai","Mehta","Agarwal","Banerjee","Dubey","Kapoor","Sen","Shah","Srivastava","Murthy","Mishra","Pandey","Chopra","Thakur","Saxena","Tiwari","Yadav","Bhatt","Hegde","Menon","Kulkarni","Patil","Chandra","Dutta","Ghosh","Mitra","Sarkar","Bhattacharya","Mukherjee","Roy","Sinha","Prasad"];
+const midMale = ["Kumar","Mohan","Ramesh","Suresh","Prakash","Chandra","Shankar","Rajan","Kishore","Gopal"];
+const midFemale = ["Devi","Kumari","Lakshmi","Priya","Rani","Kaur","Begum","Jyoti","Padma","Sita"];
+
+const hospitals: { name: string; city: string; pin: string; state: string; registrar: string }[] = [
+  { name: "AIIMS", city: "New Delhi", pin: "110029", state: "Delhi", registrar: "Sub-Registrar, South Delhi" },
+  { name: "Safdarjung Hospital", city: "New Delhi", pin: "110029", state: "Delhi", registrar: "Sub-Registrar, South-East Delhi" },
+  { name: "Sir Ganga Ram Hospital", city: "New Delhi", pin: "110060", state: "Delhi", registrar: "Registrar, North Delhi MCD" },
+  { name: "Ram Manohar Lohia Hospital", city: "New Delhi", pin: "110001", state: "Delhi", registrar: "Registrar, Central Delhi" },
+  { name: "Lady Hardinge Medical College", city: "New Delhi", pin: "110001", state: "Delhi", registrar: "Registrar, NDMC" },
+  { name: "Civil Hospital", city: "Ahmedabad", pin: "380016", state: "Gujarat", registrar: "Municipal Registrar, Ahmedabad" },
+  { name: "BJ Medical College", city: "Ahmedabad", pin: "380016", state: "Gujarat", registrar: "Registrar, AMC" },
+  { name: "Osmania General Hospital", city: "Hyderabad", pin: "500012", state: "Telangana", registrar: "Registrar, GHMC Hyderabad" },
+  { name: "Gandhi Hospital", city: "Hyderabad", pin: "500003", state: "Telangana", registrar: "Registrar, Secunderabad MC" },
+  { name: "Nizam's Institute (NIMS)", city: "Hyderabad", pin: "500082", state: "Telangana", registrar: "Registrar, Rangareddy" },
+  { name: "PGIMER", city: "Chandigarh", pin: "160012", state: "Chandigarh", registrar: "Registrar, Chandigarh MC" },
+  { name: "GMCH Sector 32", city: "Chandigarh", pin: "160030", state: "Chandigarh", registrar: "Registrar, Chandigarh UT" },
+  { name: "Govt. Medical College Hospital", city: "Thiruvananthapuram", pin: "695011", state: "Kerala", registrar: "Registrar, TVM Corporation" },
+  { name: "Medical College Kozhikode", city: "Kozhikode", pin: "673008", state: "Kerala", registrar: "Registrar, Kozhikode Corporation" },
+  { name: "SSKM Hospital", city: "Kolkata", pin: "700020", state: "West Bengal", registrar: "Registrar, KMC Kolkata" },
+  { name: "NRS Medical College", city: "Kolkata", pin: "700014", state: "West Bengal", registrar: "Registrar, KMC South" },
+  { name: "RG Kar Medical College", city: "Kolkata", pin: "700004", state: "West Bengal", registrar: "Registrar, KMC North" },
+  { name: "SMS Hospital", city: "Jaipur", pin: "302004", state: "Rajasthan", registrar: "Registrar, Jaipur Nagar Nigam" },
+  { name: "JLN Medical College", city: "Ajmer", pin: "305001", state: "Rajasthan", registrar: "Registrar, Ajmer MC" },
+  { name: "Victoria Hospital", city: "Bangalore", pin: "560002", state: "Karnataka", registrar: "Registrar, BBMP Bangalore" },
+  { name: "Bowring Hospital", city: "Bangalore", pin: "560001", state: "Karnataka", registrar: "Registrar, BBMP East" },
+  { name: "KGMU", city: "Lucknow", pin: "226003", state: "Uttar Pradesh", registrar: "Registrar, Lucknow Nagar Nigam" },
+  { name: "BHU Hospital", city: "Varanasi", pin: "221005", state: "Uttar Pradesh", registrar: "Registrar, Varanasi MC" },
+  { name: "MY Hospital", city: "Indore", pin: "452001", state: "Madhya Pradesh", registrar: "Registrar, Indore MC" },
+  { name: "Hamidia Hospital", city: "Bhopal", pin: "462001", state: "Madhya Pradesh", registrar: "Registrar, Bhopal MC" },
+  { name: "Govt. General Hospital", city: "Chennai", pin: "600003", state: "Tamil Nadu", registrar: "Registrar, Chennai Corporation" },
+  { name: "Rajiv Gandhi GH", city: "Chennai", pin: "600003", state: "Tamil Nadu", registrar: "Registrar, Chennai South" },
+  { name: "Govt. Stanley Hospital", city: "Chennai", pin: "600001", state: "Tamil Nadu", registrar: "Registrar, Chennai North" },
+  { name: "Sassoon Hospital", city: "Pune", pin: "411001", state: "Maharashtra", registrar: "Registrar, PMC Pune" },
+  { name: "KEM Hospital", city: "Mumbai", pin: "400012", state: "Maharashtra", registrar: "Registrar, BMC Mumbai" },
+  { name: "Sion Hospital", city: "Mumbai", pin: "400022", state: "Maharashtra", registrar: "Registrar, BMC East" },
+  { name: "JJ Hospital", city: "Mumbai", pin: "400008", state: "Maharashtra", registrar: "Registrar, BMC South" },
+  { name: "IGMC", city: "Shimla", pin: "171001", state: "Himachal Pradesh", registrar: "Registrar, Shimla MC" },
+  { name: "SCB Medical College", city: "Cuttack", pin: "753007", state: "Odisha", registrar: "Registrar, CMC Cuttack" },
+  { name: "PMCH", city: "Patna", pin: "800004", state: "Bihar", registrar: "Registrar, Patna MC" },
+  { name: "RIMS", city: "Ranchi", pin: "834009", state: "Jharkhand", registrar: "Registrar, Ranchi MC" },
+  { name: "GMC Srinagar", city: "Srinagar", pin: "190010", state: "J&K", registrar: "Registrar, SMC Srinagar" },
+  { name: "GMCH", city: "Guwahati", pin: "781032", state: "Assam", registrar: "Registrar, GMC Guwahati" },
+  { name: "JNIMS", city: "Imphal", pin: "795005", state: "Manipur", registrar: "Registrar, Imphal MC" },
+  { name: "NEIGRIHMS", city: "Shillong", pin: "793018", state: "Meghalaya", registrar: "Registrar, Shillong MC" },
 ];
 
-const seedActivities: ActivityEntry[] = [
-  // Creates + Approvals for approved records
-  { id: 1, type: "create", title: "Birth Record Created", description: "AIIMS New Delhi submitted birth record for Baby Aarav Sharma", txHash: mockTxHash(1001), certId: 1001, block: 4821100, actor: "0xa1b2...c3d4", actorRole: "Hospital", time: "30 days ago", timestamp: now - 86400000 * 30 },
-  { id: 2, type: "approve", title: "Certificate Approved", description: "Sub-Registrar, South Delhi approved birth certificate #1001 for Baby Aarav Sharma", txHash: mockTxHash(2001), certId: 1001, block: 4821100, actor: "0xe5f6...7890", actorRole: "Registrar", time: "29 days ago", timestamp: now - 86400000 * 29 },
-  { id: 3, type: "create", title: "Birth Record Created", description: "Safdarjung Hospital submitted birth record for Baby Zara Fatima Khan", txHash: mockTxHash(1002), certId: 1002, block: 4821101, actor: "0x1234...5678", actorRole: "Hospital", time: "28 days ago", timestamp: now - 86400000 * 28 },
-  { id: 4, type: "approve", title: "Certificate Approved", description: "Sub-Registrar, South-East Delhi approved birth certificate #1002 for Baby Zara Fatima Khan", txHash: mockTxHash(2002), certId: 1002, block: 4821101, actor: "0x9abc...def0", actorRole: "Registrar", time: "27 days ago", timestamp: now - 86400000 * 27 },
-  { id: 5, type: "create", title: "Birth Record Created", description: "Civil Hospital Ahmedabad submitted birth record for Baby Riya Patel", txHash: mockTxHash(1003), certId: 1003, block: 4821102, actor: "0xabcd...ef01", actorRole: "Hospital", time: "25 days ago", timestamp: now - 86400000 * 25 },
-  { id: 6, type: "approve", title: "Certificate Approved", description: "Municipal Registrar, Ahmedabad approved birth certificate #1003 for Baby Riya Patel", txHash: mockTxHash(2003), certId: 1003, block: 4821102, actor: "0x2345...6789", actorRole: "Registrar", time: "24 days ago", timestamp: now - 86400000 * 24 },
-  { id: 7, type: "create", title: "Birth Record Created", description: "Osmania General Hospital submitted birth record for Baby Arjun Venkatesh Reddy", txHash: mockTxHash(1004), certId: 1004, block: 4821103, actor: "0xfed0...1234", actorRole: "Hospital", time: "22 days ago", timestamp: now - 86400000 * 22 },
-  { id: 8, type: "approve", title: "Certificate Approved", description: "Registrar of Births, GHMC Hyderabad approved birth certificate #1004", txHash: mockTxHash(2004), certId: 1004, block: 4821103, actor: "0xaaaa...bbbb", actorRole: "Registrar", time: "21 days ago", timestamp: now - 86400000 * 21 },
-  { id: 9, type: "create", title: "Birth Record Created", description: "Govt. Medical College Hospital, Thiruvananthapuram submitted birth record for Baby Meera Suresh Nair", txHash: mockTxHash(1005), certId: 1005, block: 4821104, actor: "0x7890...abcd", actorRole: "Hospital", time: "18 days ago", timestamp: now - 86400000 * 18 },
-  { id: 10, type: "approve", title: "Certificate Approved", description: "Registrar, Thiruvananthapuram Corporation approved birth certificate #1005", txHash: mockTxHash(2005), certId: 1005, block: 4821104, actor: "0xcccc...dddd", actorRole: "Registrar", time: "17 days ago", timestamp: now - 86400000 * 17 },
-  { id: 11, type: "create", title: "Birth Record Created", description: "PGIMER Chandigarh submitted birth record for Baby Kabir Singh Gill", txHash: mockTxHash(1006), certId: 1006, block: 4821105, actor: "0x3456...7890", actorRole: "Hospital", time: "15 days ago", timestamp: now - 86400000 * 15 },
-  { id: 12, type: "approve", title: "Certificate Approved", description: "Registrar, Chandigarh Municipal Corporation approved birth certificate #1006", txHash: mockTxHash(2006), certId: 1006, block: 4821105, actor: "0xeeff...1122", actorRole: "Registrar", time: "14 days ago", timestamp: now - 86400000 * 14 },
-  { id: 13, type: "create", title: "Birth Record Created", description: "SSKM Hospital, Kolkata submitted birth record for Baby Ananya Das", txHash: mockTxHash(1007), certId: 1007, block: 4821106, actor: "0x5678...9012", actorRole: "Hospital", time: "12 days ago", timestamp: now - 86400000 * 12 },
-  { id: 14, type: "approve", title: "Certificate Approved", description: "Registrar, Kolkata Municipal Corporation approved birth certificate #1007", txHash: mockTxHash(2007), certId: 1007, block: 4821106, actor: "0x3344...5566", actorRole: "Registrar", time: "11 days ago", timestamp: now - 86400000 * 11 },
-  { id: 15, type: "create", title: "Birth Record Created", description: "SMS Hospital, Jaipur submitted birth record for Baby Vivaan Joshi", txHash: mockTxHash(1008), certId: 1008, block: 4821107, actor: "0x9012...3456", actorRole: "Hospital", time: "10 days ago", timestamp: now - 86400000 * 10 },
-  { id: 16, type: "approve", title: "Certificate Approved", description: "Registrar, Jaipur Nagar Nigam approved birth certificate #1008", txHash: mockTxHash(2008), certId: 1008, block: 4821107, actor: "0x7788...9900", actorRole: "Registrar", time: "9 days ago", timestamp: now - 86400000 * 9 },
-  { id: 17, type: "create", title: "Birth Record Created", description: "Victoria Hospital, Bangalore submitted birth record for Baby Ishita Rao", txHash: mockTxHash(1009), certId: 1009, block: 4821108, actor: "0xbcde...f012", actorRole: "Hospital", time: "7 days ago", timestamp: now - 86400000 * 7 },
-  { id: 18, type: "approve", title: "Certificate Approved", description: "Registrar, BBMP Bangalore approved birth certificate #1009", txHash: mockTxHash(2009), certId: 1009, block: 4821108, actor: "0xaabb...ccdd", actorRole: "Registrar", time: "6 days ago", timestamp: now - 86400000 * 6 },
-  { id: 19, type: "create", title: "Birth Record Created", description: "KGMU, Lucknow submitted birth record for Baby Aditi Verma", txHash: mockTxHash(1010), certId: 1010, block: 4821109, actor: "0xdef0...1234", actorRole: "Hospital", time: "5 days ago", timestamp: now - 86400000 * 5 },
-  { id: 20, type: "approve", title: "Certificate Approved", description: "Registrar, Lucknow Nagar Nigam approved birth certificate #1010", txHash: mockTxHash(2010), certId: 1010, block: 4821109, actor: "0xddee...ff00", actorRole: "Registrar", time: "4 days ago", timestamp: now - 86400000 * 4 },
-  // Pending creates
-  { id: 21, type: "create", title: "Birth Record Created", description: "Sir Ganga Ram Hospital submitted birth record for Baby Rohan Malhotra", txHash: mockTxHash(1011), certId: 1011, block: 4821110, actor: "0x2468...ace0", actorRole: "Hospital", time: "3 days ago", timestamp: now - 86400000 * 3 },
-  { id: 22, type: "create", title: "Birth Record Created", description: "Govt. General Hospital, Chennai submitted birth record for Baby Saanvi Iyer", txHash: mockTxHash(1012), certId: 1012, block: 4821111, actor: "0x1357...bdf1", actorRole: "Hospital", time: "2 days ago", timestamp: now - 86400000 * 2 },
-  { id: 23, type: "create", title: "Birth Record Created", description: "MY Hospital, Indore submitted birth record for Baby Dev Rajput", txHash: mockTxHash(1013), certId: 1013, block: 4821112, actor: "0x8642...0ace", actorRole: "Hospital", time: "1 day ago", timestamp: now - 86400000 * 1 },
-  { id: 24, type: "create", title: "Birth Record Created", description: "NRS Medical College, Kolkata submitted birth record for Baby Anika Bose", txHash: mockTxHash(1014), certId: 1014, block: 4821113, actor: "0xface...b00k", actorRole: "Hospital", time: "8 hours ago", timestamp: now - 3600000 * 8 },
-  { id: 25, type: "create", title: "Birth Record Created", description: "BJ Medical College, Ahmedabad submitted birth record for Baby Yash Chauhan", txHash: mockTxHash(1015), certId: 1015, block: 4821114, actor: "0xdead...beef", actorRole: "Hospital", time: "2 hours ago", timestamp: now - 3600000 * 2 },
-  // Public verifications
-  { id: 26, type: "verify", title: "Certificate Verified", description: "Public verification request for certificate #1001 — Status: Approved", txHash: "—", certId: 1001, block: 4821115, actor: "0x5555...aaaa", actorRole: "Public", time: "20 days ago", timestamp: now - 86400000 * 20 },
-  { id: 27, type: "verify", title: "Certificate Verified", description: "Public verification request for certificate #1003 — Status: Approved", txHash: "—", certId: 1003, block: 4821116, actor: "0x6666...bbbb", actorRole: "Public", time: "15 days ago", timestamp: now - 86400000 * 15 },
-  { id: 28, type: "verify", title: "Certificate Verified", description: "Public verification request for certificate #1002 — Status: Approved", txHash: "—", certId: 1002, block: 4821117, actor: "0xbbbb...cccc", actorRole: "Public", time: "8 days ago", timestamp: now - 86400000 * 8 },
-  { id: 29, type: "verify", title: "Certificate Verified", description: "Public verification request for certificate #1005 — Status: Approved", txHash: "—", certId: 1005, block: 4821118, actor: "0x7777...dddd", actorRole: "Public", time: "4 days ago", timestamp: now - 86400000 * 4 },
-  { id: 30, type: "verify", title: "Certificate Verified", description: "Public verification request for certificate #1008 — Status: Approved", txHash: "—", certId: 1008, block: 4821119, actor: "0x8888...eeee", actorRole: "Public", time: "1 day ago", timestamp: now - 86400000 * 1 },
+const streetAddrs = [
+  "H.No 45, Sector 12, Dwarka","Flat 302, Block C, Vasant Kunj","A-12, Greater Kailash Part II",
+  "D-56, Lajpat Nagar","78, Rajouri Garden","112/A, Gomti Nagar","24/1, Gariahat Road",
+  "P-42, Lake Gardens","No. 89, 4th Cross, Jayanagar","Plot 33, Jubilee Hills",
+  "B-78, Vastrapur Society","TC 9/1842, Vazhuthacaud","House 234, Phase 7, Mohali",
+  "C-56, Malviya Nagar","Old No. 18, T. Nagar","56, Vijay Nagar",
+  "9, Marine Drive","Plot 12, Banjara Hills","Flat 501, Koramangala",
+  "23, Salt Lake City, Sector V","15/2, Alipore Road","E-101, Aundh Road",
+  "G-45, Model Town","7, Civil Lines","K-23, Shivaji Nagar",
+  "A-7, Paldi","Flat 201, Boat Club Road","H-33, Defence Colony",
+  "10, MG Road","B-22, Baner Road","45, Anna Nagar East",
+  "88, Besant Nagar","L-12, Indiranagar","3/1, Park Street",
+  "F-67, Saket","N-11, Punjabi Bagh","102, Whitefield Main Road",
+  "P-9, Tollygunge","R-34, Alwarpet","22, Camp Area",
+  "Q-5, Bandra West","17, Koregaon Park","J-8, Sarojini Nagar",
+  "W-14, Adyar","S-3, Hazratganj","U-21, MG Marg",
+  "X-6, BTM Layout","V-19, Andheri East","T-11, Kolathur",
+  "M-2, Ballygunge Place","Z-9, Mylapore",
 ];
+
+const doctorFirst = ["Anand","Farah","Kirti","Srinivas","Deepa","Gurpreet","Soumya","Ramesh","Kavitha","Alok","Vinod","Arijit","Hiren","Prashant","Venkatesh","Rajan","Meena","Sunil","Pooja","Rahul","Neha","Amit","Sanjay","Priya","Manoj","Anu","Vivek","Shweta","Arjun","Divya"];
+const regPrefixes = ["DMC","GMC","TSMC","TCMC","PMC","WBMC","RMC","KMC","UPMC","MPMC","TNMC","MSMC","HPMC","CUMC","OMC","BMC","JKMC","AMC"];
+
+const NOW = Date.now();
+const DAY = 86400000;
+const SEED_COUNT = 150;
+
+function generateSeedData() {
+  const records: StoredRecord[] = [];
+  const activities: ActivityEntry[] = [];
+  let actId = 1;
+  let blockNum = 4821100;
+
+  for (let i = 0; i < SEED_COUNT; i++) {
+    const id = 1001 + i;
+    const isFemale = i % 3 === 1 || i % 5 === 0;
+    const gender = isFemale ? "Female" : "Male";
+    const firstName = isFemale ? pick(femaleFirst, i * 7 + 3) : pick(maleFirst, i * 7 + 3);
+    const lastName = pick(lastNames, i * 11 + 5);
+    const fatherFirst = pick(maleFirst, i * 13 + 7);
+    const fatherMid = pick(midMale, i * 17 + 2);
+    const motherFirst = pick(femaleFirst, i * 19 + 1);
+    const motherMid = pick(midFemale, i * 23 + 4);
+    const hosp = pick(hospitals, i * 3 + 1);
+    const addr = pick(streetAddrs, i * 7 + 2);
+    const docFirst = pick(doctorFirst, i * 11 + 3);
+    const regPre = pick(regPrefixes, i * 5 + 1);
+    const regYear = 2008 + (i % 16);
+    const regNum = 1000 + ((i * 137) % 9000);
+
+    const daysAgo = SEED_COUNT - i + 5;
+    const createdTs = NOW - daysAgo * DAY;
+    const block = blockNum++;
+
+    const babyName = `${firstName} ${lastName}`;
+    const birthMonth = ((i % 12) + 1).toString().padStart(2, "0");
+    const birthDay = ((i % 28) + 1).toString().padStart(2, "0");
+    const birthYear = i < 80 ? "2025" : "2026";
+    const birthHour = ((i * 3) % 24).toString().padStart(2, "0");
+    const birthMin = ((i * 7) % 60).toString().padStart(2, "0");
+
+    const creatorAddr = seedAddr(id);
+    const isApproved = i < Math.floor(SEED_COUNT * 0.7);
+
+    const rec: StoredRecord = {
+      id,
+      status: isApproved ? "Approved" : "Pending",
+      txHash: seedTxHash(id),
+      createdAt: new Date(createdTs).toISOString(),
+      creatorAddress: creatorAddr,
+      block,
+      record: {
+        babyName,
+        fatherName: `${fatherFirst} ${fatherMid} ${lastName}`,
+        motherName: `${motherFirst} ${motherMid} ${lastName}`,
+        birthDate: `${birthYear}-${birthMonth}-${birthDay}`,
+        birthTime: `${birthHour}:${birthMin}`,
+        gender,
+        hospitalAddress: `${hosp.name}, ${hosp.city}, ${hosp.state} – ${hosp.pin}`,
+        permanentAddress: `${addr}, ${hosp.city} – ${hosp.pin}`,
+        doctorName: `Dr. ${docFirst} (Reg. No. ${regPre}/${regYear}/${regNum})`,
+      },
+    };
+
+    if (isApproved) {
+      const approveTs = createdTs + DAY;
+      rec.approvedAt = new Date(approveTs).toISOString();
+      rec.approveTxHash = seedTxHash(id + 5000);
+      rec.approverAddress = seedAddr(id + 5000);
+    }
+
+    records.push(rec);
+
+    activities.push({
+      id: actId++,
+      type: "create",
+      title: "Birth Record Created",
+      description: `${hosp.name}, ${hosp.city} submitted birth record for Baby ${babyName}`,
+      txHash: seedTxHash(id),
+      certId: id,
+      block,
+      actor: creatorAddr,
+      actorRole: "Hospital",
+      time: timeAgo(createdTs),
+      timestamp: createdTs,
+    });
+
+    if (isApproved) {
+      const approveTs = createdTs + DAY;
+      const aBlock = blockNum++;
+      activities.push({
+        id: actId++,
+        type: "approve",
+        title: "Certificate Approved",
+        description: `${hosp.registrar} approved birth certificate #${id} for Baby ${babyName}`,
+        txHash: seedTxHash(id + 5000),
+        certId: id,
+        block: aBlock,
+        actor: seedAddr(id + 5000),
+        actorRole: "Registrar",
+        time: timeAgo(approveTs),
+        timestamp: approveTs,
+      });
+    }
+
+    if (isApproved && i % 5 === 0) {
+      const verifyTs = createdTs + DAY * 3;
+      const vBlock = blockNum++;
+      activities.push({
+        id: actId++,
+        type: "verify",
+        title: "Certificate Verified",
+        description: `Public verification request for certificate #${id} — Status: Approved`,
+        txHash: "—",
+        certId: id,
+        block: vBlock,
+        actor: seedAddr(id + 9000),
+        actorRole: "Public",
+        time: timeAgo(verifyTs),
+        timestamp: verifyTs,
+      });
+    }
+  }
+
+  return { records, activities: activities.sort((a, b) => a.timestamp - b.timestamp), nextBlock: blockNum, nextActId: actId };
+}
+
+const seed = generateSeedData();
+let nextId = 1001 + SEED_COUNT;
+let nextBlock = seed.nextBlock + 10;
+let nextActivityId = seed.nextActId + 10;
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [records, setRecords] = useState<StoredRecord[]>(seedRecords);
-  const [activities, setActivities] = useState<ActivityEntry[]>([...seedActivities].reverse());
+  const [records, setRecords] = useState<StoredRecord[]>(seed.records);
+  const [activities, setActivities] = useState<ActivityEntry[]>([...seed.activities].reverse());
 
   const addRecord = useCallback((record: BirthRecord, txHash: string): number => {
     const id = nextId++;
