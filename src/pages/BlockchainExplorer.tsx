@@ -99,11 +99,20 @@ export default function BlockchainExplorer() {
         timestamp: a.time,
         gasUsed: a.type === "verify" ? "0" : `${Math.floor(Math.random() * 200000 + 50000).toLocaleString()}`,
         currentHash: generateBlockHash(a.block, 1),
-        previousHash: generateBlockHash(a.block - 1, 1),
+        previousHash: "", // placeholder, set after sorting
       });
     }
   });
-  const blocks = Array.from(blockMap.values()).sort((a, b) => b.number - a.number);
+  const blocks = Array.from(blockMap.values()).sort((a, b) => a.number - b.number);
+  // Link previous hashes: first block gets genesis hash (0x000...0), rest get the previous block's currentHash
+  blocks.forEach((block, idx) => {
+    if (idx === 0) {
+      block.previousHash = "0x" + "0".repeat(64);
+    } else {
+      block.previousHash = blocks[idx - 1].currentHash;
+    }
+  });
+  blocks.reverse(); // newest first
 
   // Derive events from activities
   const events = activities
