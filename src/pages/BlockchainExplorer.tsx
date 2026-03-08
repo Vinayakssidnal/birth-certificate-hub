@@ -77,14 +77,30 @@ export default function BlockchainExplorer() {
       )
     : activities;
 
-  // Derive blocks from activities
-  const blockMap = new Map<number, { number: number; txCount: number; timestamp: string; gasUsed: string }>();
+  // Derive blocks from activities with hashes
+  function generateBlockHash(blockNum: number, seed: number): string {
+    const chars = "0123456789abcdef";
+    let hash = "0x";
+    for (let i = 0; i < 64; i++) {
+      hash += chars[(blockNum * 7 + seed * 13 + i * 31) % 16];
+    }
+    return hash;
+  }
+
+  const blockMap = new Map<number, { number: number; txCount: number; timestamp: string; gasUsed: string; currentHash: string; previousHash: string }>();
   activities.forEach((a) => {
     const existing = blockMap.get(a.block);
     if (existing) {
       existing.txCount += 1;
     } else {
-      blockMap.set(a.block, { number: a.block, txCount: 1, timestamp: a.time, gasUsed: a.type === "verify" ? "0" : `${Math.floor(Math.random() * 200000 + 50000).toLocaleString()}` });
+      blockMap.set(a.block, {
+        number: a.block,
+        txCount: 1,
+        timestamp: a.time,
+        gasUsed: a.type === "verify" ? "0" : `${Math.floor(Math.random() * 200000 + 50000).toLocaleString()}`,
+        currentHash: generateBlockHash(a.block, 1),
+        previousHash: generateBlockHash(a.block - 1, 1),
+      });
     }
   });
   const blocks = Array.from(blockMap.values()).sort((a, b) => b.number - a.number);
@@ -246,18 +262,32 @@ export default function BlockchainExplorer() {
             ) : (
               <div className="divide-y divide-border">
                 {blocks.map((block) => (
-                  <div key={block.number} className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                      <Box className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-card-foreground font-mono">#{block.number}</span>
-                        <span className="text-xs text-muted-foreground font-body">{block.timestamp}</span>
+                  <div key={block.number} className="px-6 py-4 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                        <Box className="h-5 w-5 text-primary" />
                       </div>
-                      <div className="flex items-center gap-4 mt-1">
-                        <span className="text-xs text-muted-foreground font-body">{block.txCount} txn{block.txCount > 1 ? "s" : ""}</span>
-                        <span className="text-xs text-muted-foreground font-body">Gas: {block.gasUsed}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-card-foreground font-mono">#{block.number}</span>
+                          <span className="text-xs text-muted-foreground font-body">{block.timestamp}</span>
+                        </div>
+                        <div className="flex items-center gap-4 mt-1">
+                          <span className="text-xs text-muted-foreground font-body">{block.txCount} txn{block.txCount > 1 ? "s" : ""}</span>
+                          <span className="text-xs text-muted-foreground font-body">Gas: {block.gasUsed}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 ml-14 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Hash className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Current Hash:</span>
+                        <span className="text-xs font-mono text-primary break-all">{block.currentHash}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Hash className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-xs text-muted-foreground font-body w-24 shrink-0">Previous Hash:</span>
+                        <span className="text-xs font-mono text-muted-foreground break-all">{block.previousHash}</span>
                       </div>
                     </div>
                   </div>
