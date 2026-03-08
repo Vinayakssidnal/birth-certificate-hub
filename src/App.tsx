@@ -26,6 +26,8 @@ const App = () => (
             <Route path="/hospital" element={<HospitalDashboard />} />
             <Route path="/registrar" element={<RegistrarDashboard />} />
             <Route path="/verify" element={<VerifyCertificate />} />
+            <Route path="/explorer" element={<BlockchainExplorer />} />
+            <Route path="/activity" element={<ActivityLog />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>

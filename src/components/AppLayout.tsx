@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Building2, UserCheck, ShieldCheck, Menu, X, FileText } from "lucide-react";
+import { Home, Building2, UserCheck, ShieldCheck, Menu, X, FileText, Blocks, Activity } from "lucide-react";
 
 const navItems = [
   { path: "/", label: "Home", icon: Home },
   { path: "/hospital", label: "Hospital Dashboard", icon: Building2 },
   { path: "/registrar", label: "Registrar Dashboard", icon: UserCheck },
   { path: "/verify", label: "Verify Certificate", icon: ShieldCheck },
+  { path: "/explorer", label: "Blockchain Explorer", icon: Blocks },
+  { path: "/activity", label: "Activity Log", icon: Activity },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
