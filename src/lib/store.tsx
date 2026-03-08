@@ -39,9 +39,9 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
-let nextId = 1006;
-let nextBlock = 4821106;
-let nextActivityId = 11;
+let nextId = 1016;
+let nextBlock = 4821120;
+let nextActivityId = 31;
 
 function generateAddress(): string {
   const chars = "0123456789abcdef";
