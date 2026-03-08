@@ -77,14 +77,30 @@ export default function BlockchainExplorer() {
       )
     : activities;
 
-  // Derive blocks from activities
-  const blockMap = new Map<number, { number: number; txCount: number; timestamp: string; gasUsed: string }>();
+  // Derive blocks from activities with hashes
+  function generateBlockHash(blockNum: number, seed: number): string {
+    const chars = "0123456789abcdef";
+    let hash = "0x";
+    for (let i = 0; i < 64; i++) {
+      hash += chars[(blockNum * 7 + seed * 13 + i * 31) % 16];
+    }
+    return hash;
+  }
+
+  const blockMap = new Map<number, { number: number; txCount: number; timestamp: string; gasUsed: string; currentHash: string; previousHash: string }>();
   activities.forEach((a) => {
     const existing = blockMap.get(a.block);
     if (existing) {
       existing.txCount += 1;
     } else {
-      blockMap.set(a.block, { number: a.block, txCount: 1, timestamp: a.time, gasUsed: a.type === "verify" ? "0" : `${Math.floor(Math.random() * 200000 + 50000).toLocaleString()}` });
+      blockMap.set(a.block, {
+        number: a.block,
+        txCount: 1,
+        timestamp: a.time,
+        gasUsed: a.type === "verify" ? "0" : `${Math.floor(Math.random() * 200000 + 50000).toLocaleString()}`,
+        currentHash: generateBlockHash(a.block, 1),
+        previousHash: generateBlockHash(a.block - 1, 1),
+      });
     }
   });
   const blocks = Array.from(blockMap.values()).sort((a, b) => b.number - a.number);
