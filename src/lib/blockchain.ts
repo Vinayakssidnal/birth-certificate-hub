@@ -5,13 +5,19 @@ import { BrowserProvider, Contract } from "ethers";
 // =====================================================
 const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS_HERE";
 const CONTRACT_ABI = [
-  // createBirthRecord(string fatherName, string motherName, string babyName, string birthDate, string birthTime, string gender, string permanentAddress, string doctorName, string hospitalAddress)
   "function createBirthRecord(string,string,string,string,string,string,string,string,string) public returns (uint256)",
-  // approveCertificate(uint256 certificateId)
   "function approveCertificate(uint256) public",
-  // verifyCertificate(uint256 certificateId) view returns (tuple)
   "function verifyCertificate(uint256) public view returns (string,string,string,string,string,string,bool)",
 ];
+
+const IS_DEMO_MODE = CONTRACT_ADDRESS === "0xYOUR_CONTRACT_ADDRESS_HERE";
+
+function generateMockTxHash(): string {
+  return "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+}
+
+// In-memory demo storage
+const demoRecords: Map<number, BirthRecord & { approved: boolean }> = new Map();
 
 export interface WalletState {
   address: string | null;
