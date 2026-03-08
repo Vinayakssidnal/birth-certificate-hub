@@ -11,6 +11,7 @@ import RegistrarDashboard from "./pages/RegistrarDashboard";
 import VerifyCertificate from "./pages/VerifyCertificate";
 import BlockchainExplorer from "./pages/BlockchainExplorer";
 import ActivityLog from "./pages/ActivityLog";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/verify" element={<VerifyCertificate />} />
               <Route path="/explorer" element={<BlockchainExplorer />} />
               <Route path="/activity" element={<ActivityLog />} />
+              <Route path="/analytics" element={<Analytics />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>
