@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import RegistrarDashboard from "./pages/RegistrarDashboard";
 import VerifyCertificate from "./pages/VerifyCertificate";
+import BlockchainExplorer from "./pages/BlockchainExplorer";
+import ActivityLog from "./pages/ActivityLog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
