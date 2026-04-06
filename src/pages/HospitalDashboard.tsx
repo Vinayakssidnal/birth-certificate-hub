@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import WalletButton from "@/components/WalletButton";
 import { createBirthRecord, type BirthRecord } from "@/lib/blockchain";
 import { useStore } from "@/lib/store";
+import { apiCreateRecord, getToken } from "@/lib/api";
+import { toast } from "sonner";
 
 const initialForm: BirthRecord = {
   fatherName: "",
@@ -60,6 +62,15 @@ export default function HospitalDashboard() {
       setTxHash(hash);
       setCertId(id);
       setForm(initialForm);
+
+      // Sync to MongoDB backend (non-blocking)
+      if (getToken()) {
+        apiCreateRecord({ ...form, txHash: hash, block: 0, creatorAddress: "" })
+          .then(() => toast.success("Transaction successful. Gas deducted: 0.01"))
+          .catch(() => {});
+      } else {
+        toast.success("Transaction successful. Gas deducted: 0.01");
+      }
     } catch (e: any) {
       setError(e.message);
     } finally {

@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import WalletButton from "@/components/WalletButton";
 import { approveCertificate } from "@/lib/blockchain";
 import { useStore } from "@/lib/store";
+import { apiApproveRecord, getToken } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function RegistrarDashboard() {
   const [certId, setCertId] = useState("");
@@ -28,6 +30,14 @@ export default function RegistrarDashboard() {
       approveRecord(Number(certId), hash);
       setTxHash(hash);
       setCertId("");
+
+      if (getToken()) {
+        apiApproveRecord(Number(certId), hash)
+          .then(() => toast.success("Transaction successful. Gas deducted: 0.01"))
+          .catch(() => {});
+      } else {
+        toast.success("Transaction successful. Gas deducted: 0.01");
+      }
     } catch (e: any) {
       setError(e.message);
     } finally {

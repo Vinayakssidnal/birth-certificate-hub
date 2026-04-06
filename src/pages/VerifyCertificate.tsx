@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store";
+import { apiVerifyRecord, getToken } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function VerifyCertificate() {
   const [certId, setCertId] = useState("");
@@ -28,6 +30,15 @@ export default function VerifyCertificate() {
     const rec = getRecord(Number(certId));
     if (rec) {
       addVerifyActivity(rec.id);
+
+      if (getToken()) {
+        apiVerifyRecord(rec.id)
+          .then(() => toast.success("Transaction successful. Gas deducted: 0.01"))
+          .catch(() => {});
+      } else {
+        toast.success("Transaction successful. Gas deducted: 0.01");
+      }
+
       setResult({
         fatherName: rec.record.fatherName,
         motherName: rec.record.motherName,
