@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import WalletButton from "@/components/WalletButton";
 import { createBirthRecord, type BirthRecord } from "@/lib/blockchain";
 import { useStore } from "@/lib/store";
+import { apiCreateRecord, getToken } from "@/lib/api";
+import { toast } from "sonner";
 
 const initialForm: BirthRecord = {
   fatherName: "",
