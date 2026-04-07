@@ -82,19 +82,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex-1 lg:ml-72">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-border bg-card/80 backdrop-blur-md px-6 py-4">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden rounded-lg p-2 hover:bg-muted text-muted-foreground"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex-1" />
-          <div className="flex items-center gap-2 text-xs text-muted-foreground font-body">
-            <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
-            Network Active
-          </div>
-        </header>
+        <TopBar onMenuOpen={() => setSidebarOpen(true)} />
 
         <main className="p-6 lg:p-8">{children}</main>
       </div>

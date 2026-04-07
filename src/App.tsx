@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { StoreProvider } from "@/lib/store";
+import { AuthProvider } from "@/lib/auth";
 import AppLayout from "@/components/AppLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Home from "./pages/Home";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import RegistrarDashboard from "./pages/RegistrarDashboard";
@@ -21,22 +23,32 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <StoreProvider>
-        <BrowserRouter>
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/hospital" element={<HospitalDashboard />} />
-              <Route path="/registrar" element={<RegistrarDashboard />} />
-              <Route path="/verify" element={<VerifyCertificate />} />
-              <Route path="/explorer" element={<BlockchainExplorer />} />
-              <Route path="/activity" element={<ActivityLog />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppLayout>
-        </BrowserRouter>
-      </StoreProvider>
+      <AuthProvider>
+        <StoreProvider>
+          <BrowserRouter>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/hospital" element={
+                  <ProtectedRoute allowedRoles={["hospital"]}>
+                    <HospitalDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/registrar" element={
+                  <ProtectedRoute allowedRoles={["registrar"]}>
+                    <RegistrarDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/verify" element={<VerifyCertificate />} />
+                <Route path="/explorer" element={<BlockchainExplorer />} />
+                <Route path="/activity" element={<ActivityLog />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
+          </BrowserRouter>
+        </StoreProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
