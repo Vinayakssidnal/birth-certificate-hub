@@ -32,9 +32,12 @@ export default function VerifyCertificate() {
       addVerifyActivity(rec.id);
 
       if (getToken()) {
-        apiVerifyRecord(rec.id)
-          .then(() => toast.success("Transaction successful. Gas deducted: 0.01"))
-          .catch(() => {});
+        try {
+          await apiVerifyRecord(rec.id);
+          toast.success("Transaction successful. Gas deducted: 0.01");
+        } catch (apiErr: any) {
+          toast.error(apiErr.message || "Verification sync failed");
+        }
       } else {
         toast.success("Transaction successful. Gas deducted: 0.01");
       }

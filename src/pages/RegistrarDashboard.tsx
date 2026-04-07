@@ -27,19 +27,26 @@ export default function RegistrarDashboard() {
     setTxHash(null);
     try {
       const hash = await approveCertificate(Number(certId));
-      approveRecord(Number(certId), hash);
-      setTxHash(hash);
-      setCertId("");
 
+      // Call backend API first — only update UI on success
       if (getToken()) {
-        apiApproveRecord(Number(certId), hash)
-          .then(() => toast.success("Transaction successful. Gas deducted: 0.01"))
-          .catch(() => {});
+        try {
+          await apiApproveRecord(Number(certId), hash);
+          toast.success("Transaction successful. Gas deducted: 0.01");
+        } catch (apiErr: any) {
+          toast.error(apiErr.message || "Backend sync failed");
+        }
       } else {
         toast.success("Transaction successful. Gas deducted: 0.01");
       }
+
+      // Update local state only after success
+      approveRecord(Number(certId), hash);
+      setTxHash(hash);
+      setCertId("");
     } catch (e: any) {
       setError(e.message);
+      toast.error(e.message || "Approval failed");
     } finally {
       setLoading(false);
     }
