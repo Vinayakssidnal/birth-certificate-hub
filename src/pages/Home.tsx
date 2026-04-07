@@ -6,6 +6,8 @@ import {
   Clock, CheckCircle2, AlertCircle
 } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
+import WalletButton from "@/components/WalletButton";
 
 const cards = [
   {
@@ -92,6 +94,7 @@ const networkInfo = {
 
 export default function HomePage() {
   const { records, activities } = useStore();
+  const { isAuthenticated, role } = useAuth();
 
   const totalCreated = activities.filter((a) => a.type === "create").length;
   const totalApproved = activities.filter((a) => a.type === "approve").length;
@@ -127,6 +130,11 @@ export default function HomePage() {
         <p className="text-lg text-muted-foreground font-body max-w-2xl mx-auto">
           A decentralized, transparent, and tamper-proof system for managing birth certificates using Ethereum blockchain technology.
         </p>
+
+        {/* Login Section */}
+        <div className="mt-8 inline-block">
+          <WalletButton />
+        </div>
       </motion.div>
 
       {/* Navigation Cards */}
