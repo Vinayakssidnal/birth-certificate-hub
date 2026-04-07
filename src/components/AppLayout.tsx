@@ -14,6 +14,40 @@ const navItems = [
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
+function TopBar({ onMenuOpen }: { onMenuOpen: () => void }) {
+  const { isAuthenticated, role, address, logout } = useAuth();
+  return (
+    <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-border bg-card/80 backdrop-blur-md px-6 py-4">
+      <button
+        onClick={onMenuOpen}
+        className="lg:hidden rounded-lg p-2 hover:bg-muted text-muted-foreground"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+      <div className="flex-1" />
+      {isAuthenticated && role && (
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground font-body">
+            Logged in as: <span className="font-medium text-foreground capitalize">{role}</span>
+          </span>
+          {address && (
+            <span className="text-xs font-mono text-primary">
+              {address.slice(0, 6)}...{address.slice(-4)}
+            </span>
+          )}
+          <button onClick={logout} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive font-body transition-colors">
+            <LogOut className="h-3.5 w-3.5" /> Logout
+          </button>
+        </div>
+      )}
+      <div className="flex items-center gap-2 text-xs text-muted-foreground font-body">
+        <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+        Network Active
+      </div>
+    </header>
+  );
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
