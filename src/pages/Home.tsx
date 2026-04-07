@@ -6,6 +6,8 @@ import {
   Clock, CheckCircle2, AlertCircle
 } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
+import WalletButton from "@/components/WalletButton";
 
 const cards = [
   {
