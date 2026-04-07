@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Building2, UserCheck, ShieldCheck, Menu, X, FileText, Blocks, Activity, BarChart3 } from "lucide-react";
+import { Home, Building2, UserCheck, ShieldCheck, Menu, X, FileText, Blocks, Activity, BarChart3, LogOut } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 const navItems = [
   { path: "/", label: "Home", icon: Home },
