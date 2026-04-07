@@ -94,6 +94,7 @@ const networkInfo = {
 
 export default function HomePage() {
   const { records, activities } = useStore();
+  const { isAuthenticated, role } = useAuth();
 
   const totalCreated = activities.filter((a) => a.type === "create").length;
   const totalApproved = activities.filter((a) => a.type === "approve").length;
