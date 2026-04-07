@@ -130,6 +130,11 @@ export default function HomePage() {
         <p className="text-lg text-muted-foreground font-body max-w-2xl mx-auto">
           A decentralized, transparent, and tamper-proof system for managing birth certificates using Ethereum blockchain technology.
         </p>
+
+        {/* Login Section */}
+        <div className="mt-8 inline-block">
+          <WalletButton />
+        </div>
       </motion.div>
 
       {/* Navigation Cards */}
