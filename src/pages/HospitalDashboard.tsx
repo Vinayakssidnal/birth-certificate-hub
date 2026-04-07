@@ -63,16 +63,20 @@ export default function HospitalDashboard() {
       setCertId(id);
       setForm(initialForm);
 
-      // Sync to MongoDB backend (non-blocking)
+      // Call backend API with proper error handling
       if (getToken()) {
-        apiCreateRecord({ ...form, txHash: hash, block: 0, creatorAddress: "" })
-          .then(() => toast.success("Transaction successful. Gas deducted: 0.01"))
-          .catch(() => {});
+        try {
+          await apiCreateRecord({ ...form, txHash: hash, block: 0, creatorAddress: "" });
+          toast.success("Transaction successful. Gas deducted: 0.01");
+        } catch (apiErr: any) {
+          toast.error(apiErr.message || "Backend sync failed");
+        }
       } else {
         toast.success("Transaction successful. Gas deducted: 0.01");
       }
     } catch (e: any) {
       setError(e.message);
+      toast.error(e.message || "Transaction failed");
     } finally {
       setLoading(false);
     }
